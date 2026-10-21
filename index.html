@@ -173,6 +173,10 @@
 
                 <!-- Actions inside card -->
                 <div id="resultActions" class="hidden pt-4 border-t border-slate-100 flex flex-col gap-2">
+                    <button id="btnViewRecipe" class="w-full py-2.5 px-4 rounded-xl bg-orange-50 border border-orange-200 text-orange-700 font-bold text-xs hover:bg-orange-100 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        <span data-i18n="detailsBtn">פרטי המתכון</span>
+                    </button>
                     <button id="btnMadeItRecently" class="w-full py-2.5 px-4 rounded-xl border-2 border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 active:scale-98 transition-all flex items-center justify-center gap-2">
                         <i data-lucide="history" class="w-4 h-4 text-slate-400"></i>
                         <span data-i18n="alreadyMade">הכנתי את זה לאחרונה (הגרל משהו אחר)</span>
@@ -313,9 +317,23 @@
                     </div>
                 </div>
 
-                <!-- Notes & Instructions -->
+                <!-- Ingredients -->
                 <div class="space-y-1">
-                    <label class="font-bold text-slate-700 text-xs" data-i18n="fieldNotes">הערות, מצרכים או הוראות הכנה</label>
+                    <label class="font-bold text-slate-700 text-xs" data-i18n="fieldIngredients">מצרכים</label>
+                    <textarea id="fieldIngredientsInput" rows="4" placeholder="מצרך אחד בכל שורה" data-i18n-placeholder="phIngredients"
+                        class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                </div>
+
+                <!-- Instructions -->
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-700 text-xs" data-i18n="fieldInstructions">אופן הכנה</label>
+                    <textarea id="fieldInstructionsInput" rows="5" placeholder="שלב אחד בכל שורה" data-i18n-placeholder="phInstructions"
+                        class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                </div>
+
+                <!-- Notes -->
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-700 text-xs" data-i18n="fieldNotes">הערות וטיפים (אופציונלי)</label>
                     <textarea id="fieldNotesInput" rows="3" placeholder="מתכון קצר, מצרכים, טיפים מיוחדים..." data-i18n-placeholder="phNotes"
                         class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
                 </div>
@@ -343,6 +361,48 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RECIPE DETAILS -->
+    <div id="modalDetail" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[92vh] flex flex-col shadow-xl overflow-hidden">
+            <div class="p-4 border-b border-slate-100 flex justify-between items-start gap-3 bg-slate-50">
+                <div class="min-w-0">
+                    <span id="detailCategory" class="inline-block text-[11px] font-bold px-2.5 py-1 rounded-full bg-orange-100 text-orange-700 mb-1.5"></span>
+                    <h3 id="detailTitle" class="text-xl font-black text-slate-900 leading-tight"></h3>
+                    <p id="detailLevel" class="text-[11px] text-slate-500 font-medium mt-1"></p>
+                </div>
+                <button id="btnCloseDetail" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200/50 flex-shrink-0">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="detailBody" class="p-4 overflow-y-auto space-y-5 text-sm text-slate-700 select-text">
+                <div id="detailGallery" class="hidden flex gap-2 overflow-x-auto"></div>
+                <section id="detailIngredientsBox" class="hidden">
+                    <h4 class="font-bold text-slate-900 mb-2" data-i18n="fieldIngredients">מצרכים</h4>
+                    <ul id="detailIngredients" class="space-y-1.5"></ul>
+                </section>
+                <section id="detailInstructionsBox" class="hidden">
+                    <h4 class="font-bold text-slate-900 mb-2" data-i18n="fieldInstructions">אופן הכנה</h4>
+                    <ol id="detailInstructions" class="space-y-3"></ol>
+                </section>
+                <section id="detailNotesBox" class="hidden">
+                    <h4 class="font-bold text-slate-900 mb-2" data-i18n="notesTitle">הערות</h4>
+                    <p id="detailNotes" class="whitespace-pre-line text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-2xl p-3 border border-slate-100"></p>
+                </section>
+                <p id="detailEmpty" class="hidden text-xs text-slate-400 text-center py-4" data-i18n="detailNoContent"></p>
+                <a id="detailLink" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1 text-orange-600 font-bold text-xs hover:underline">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    <span data-i18n="recipeLink">לאתר המתכון</span>
+                </a>
+            </div>
+            <div class="p-3 border-t border-slate-100">
+                <button id="btnDetailEdit" class="w-full py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 flex items-center justify-center gap-2">
+                    <i data-lucide="pencil" class="w-4 h-4 text-orange-500"></i>
+                    <span data-i18n="detailEdit">עריכה</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -438,8 +498,8 @@
                 fieldImages: "תמונות / צילומי מסך של המתכון",
                 fieldImagesSub: "ניתן להעלות כמה תמונות",
                 addPhoto: "הוסף תמונה",
-                fieldNotes: "הערות, מצרכים או הוראות הכנה",
-                phNotes: "מתכון קצר, מצרכים, טיפים מיוחדים...",
+                fieldNotes: "הערות וטיפים (אופציונלי)",
+                phNotes: "טיפים מיוחדים, החלפות, הערות...",
                 fieldLink: "קישור לאתר מתכון (אופציונלי)",
                 btnSaveDish: "שמור מנה",
                 btnCancel: "ביטול",
@@ -474,7 +534,11 @@
                 urlScanError: "לא הצלחתי לקרוא את המתכון מהקישור. חלק מהאתרים חוסמים קריאה אוטומטית - אפשר לנסות צילום מסך במקום.",
                 scanTimeout: "הסריקה לקחה יותר מדי זמן ובוטלה. נסי שוב, או נסי צילום מסך.",
                 scanRateLimit: "הגעת למגבלת הבקשות החינמית של Gemini. המתיני כדקה ונסי שוב.",
-                scanBusy: "שירות ה-AI עמוס כרגע. נסי שוב בעוד רגע."
+                scanBusy: "שירות ה-AI עמוס כרגע. נסי שוב בעוד רגע.",
+                fieldIngredients: "מצרכים", phIngredients: "מצרך אחד בכל שורה",
+                fieldInstructions: "אופן הכנה", phInstructions: "שלב אחד בכל שורה",
+                notesTitle: "הערות", detailsBtn: "פרטי המתכון", detailEdit: "עריכה",
+                detailNoContent: "עוד לא נוספו מצרכים או הוראות הכנה. אפשר להוסיף דרך העריכה."
             },
             en: {
                 appTitle: "What's Cooking?",
@@ -504,8 +568,8 @@
                 fieldImages: "Recipe Photos / Screenshots",
                 fieldImagesSub: "Upload multiple photos",
                 addPhoto: "Add Photo",
-                fieldNotes: "Notes, Ingredients, or Steps",
-                phNotes: "Short recipe, ingredients, secret tips...",
+                fieldNotes: "Notes & tips (optional)",
+                phNotes: "Special tips, substitutions, notes...",
                 fieldLink: "Recipe Website Link (Optional)",
                 btnSaveDish: "Save Dish",
                 btnCancel: "Cancel",
@@ -540,7 +604,11 @@
                 urlScanError: "Couldn't read the recipe from that link. Some sites block automated access - try a screenshot instead.",
                 scanTimeout: "The scan took too long and was cancelled. Try again, or use a screenshot.",
                 scanRateLimit: "You've hit Gemini's free request limit. Wait about a minute and try again.",
-                scanBusy: "The AI service is busy right now. Try again in a moment."
+                scanBusy: "The AI service is busy right now. Try again in a moment.",
+                fieldIngredients: "Ingredients", phIngredients: "One ingredient per line",
+                fieldInstructions: "Instructions", phInstructions: "One step per line",
+                notesTitle: "Notes", detailsBtn: "View recipe", detailEdit: "Edit",
+                detailNoContent: "No ingredients or instructions yet. You can add them via Edit."
             }
         };
 
@@ -599,6 +667,8 @@
                 category: CATEGORIES.includes(d.category) ? d.category : fallbackCat,
                 difficulty: Math.min(5, Math.max(1, parseInt(d.difficulty) || 3)),
                 notes: typeof d.notes === "string" ? d.notes : "",
+                ingredients: Array.isArray(d.ingredients) ? d.ingredients.join("\n") : (typeof d.ingredients === "string" ? d.ingredients : ""),
+                instructions: Array.isArray(d.instructions) ? d.instructions.join("\n") : (typeof d.instructions === "string" ? d.instructions : ""),
                 link: typeof d.link === "string" ? d.link : "",
                 en: (d.en && typeof d.en.title === "string") ? { title: d.en.title, notes: typeof d.en.notes === "string" ? d.en.notes : "" } : (def && def.title === d.title.trim() ? def.en : undefined),
                 images: Array.isArray(d.images) ? d.images.filter(i => typeof i === "string" && i.startsWith("data:image/")) : []
@@ -619,6 +689,7 @@
 
         let currentSessionExcludedIds = new Set();
         let currentRolledDish = null;
+        let detailDishId = null;
         let activeFormImages = []; // Base64 array for current modal
 
         // --- DOM ELEMENTS ---
@@ -655,6 +726,8 @@
         const fieldDifficultyInput = document.getElementById("fieldDifficultyInput");
         const formDiffBadge = document.getElementById("formDiffBadge");
         const fieldNotesInput = document.getElementById("fieldNotesInput");
+        const fieldIngredientsInput = document.getElementById("fieldIngredientsInput");
+        const fieldInstructionsInput = document.getElementById("fieldInstructionsInput");
         const fieldLinkInput = document.getElementById("fieldLinkInput");
         const fileImagesInput = document.getElementById("fileImagesInput");
         const imagesPreviewContainer = document.getElementById("imagesPreviewContainer");
@@ -693,6 +766,7 @@
             buildCategorySelect();
             renderDishesList();
             if (currentRolledDish) displayRolledDish(currentRolledDish);
+            if (detailDishId) openDetail(detailDishId);
             updateSessionUI();
 
             document.querySelectorAll("[data-i18n]").forEach(el => {
@@ -915,7 +989,7 @@ function updateFormDifficultyBadge() {
             const query = searchDishes.value.toLowerCase().trim();
             dishesList.innerHTML = "";
 
-            const filtered = dishes.filter(d => d.category === currentCategory && (d.title + " " + dTitle(d) + " " + (d.notes || "") + " " + dNotes(d)).toLowerCase().includes(query));
+            const filtered = dishes.filter(d => d.category === currentCategory && (d.title + " " + dTitle(d) + " " + (d.notes || "") + " " + dNotes(d) + " " + (d.ingredients || "")).toLowerCase().includes(query));
             badgeDishCount.textContent = dishes.length;
             renderCategoryBar();
 
@@ -933,7 +1007,7 @@ function updateFormDifficultyBadge() {
                     : `<div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center flex-shrink-0 font-black text-sm">${dish.difficulty}</div>`;
 
                 card.innerHTML = `
-                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <div data-open="${dish.id}" class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer">
                         ${imgThumb}
                         <div class="min-w-0 flex-1">
                             <h4 class="font-bold text-slate-800 text-sm truncate">${esc(dTitle(dish))}</h4>
@@ -1002,6 +1076,8 @@ function updateFormDifficultyBadge() {
             fieldDifficultyInput.value = "3";
             fieldCategoryInput.value = currentCategory;
             fieldNotesInput.value = "";
+            fieldIngredientsInput.value = "";
+            fieldInstructionsInput.value = "";
             fieldLinkInput.value = "";
             activeFormImages = [];
             renderFormImagesPreview();
@@ -1021,7 +1097,7 @@ function updateFormDifficultyBadge() {
             const notes = fieldNotesInput.value.trim();
             const link = fieldLinkInput.value.trim();
 
-            const dishData = { id, title, category: fieldCategoryInput.value, difficulty, notes, link, images: [...activeFormImages] };
+            const dishData = { id, title, category: fieldCategoryInput.value, difficulty, ingredients: fieldIngredientsInput.value.trim(), instructions: fieldInstructionsInput.value.trim(), notes, link, images: [...activeFormImages] };
             const prev = dishes.find(d => d.id === id);
             if (prev && prev.en && prev.title === title && prev.notes === notes) dishData.en = prev.en; // keep translation if text unchanged
 
@@ -1049,6 +1125,8 @@ function updateFormDifficultyBadge() {
             fieldDifficultyInput.value = dish.difficulty;
             fieldCategoryInput.value = dish.category;
             fieldNotesInput.value = dish.notes || "";
+            fieldIngredientsInput.value = dish.ingredients || "";
+            fieldInstructionsInput.value = dish.instructions || "";
             fieldLinkInput.value = dish.link || "";
             activeFormImages = dish.images ? [...dish.images] : [];
             
@@ -1130,7 +1208,9 @@ function updateFormDifficultyBadge() {
                 {
                   "title": "Dish name",
                   "difficulty": integer from 1 (easy/fast) to 5 (complex/fancy),
-                  "notes": "Short list of ingredients and key steps",
+                  "ingredients": ["one ingredient per item, with its quantity"],
+  "instructions": ["one preparation step per item, in order"],
+  "notes": "Optional short tips; empty string if none",
                   "category": "one of: protein (main dish of fish/beef/chicken/meat), extra (side like rice/couscous/quinoa/potatoes), soup, dessert"
                 }`;
 
@@ -1143,7 +1223,7 @@ function updateFormDifficultyBadge() {
 
                 if (parsed.title) fieldTitleInput.value = parsed.title;
                 if (parsed.difficulty) fieldDifficultyInput.value = parsed.difficulty;
-                if (parsed.notes) fieldNotesInput.value = parsed.notes;
+                applyRecipeText(parsed);
                 if (CATEGORIES.includes(parsed.category)) fieldCategoryInput.value = parsed.category;
 
                 // Also attach these images to the active dish image gallery!
@@ -1217,7 +1297,98 @@ function updateFormDifficultyBadge() {
             }
         });
 
-// --- SHARED GEMINI CALL: light thinking (fast), timeout, cancel, live timer ---
+// --- RECIPE DETAILS VIEW ---
+        function listText(v) {
+            return Array.isArray(v) ? v.map(x => String(x).trim()).filter(Boolean).join("\n") : String(v == null ? "" : v).trim();
+        }
+        function applyRecipeText(parsed) {
+            if (parsed.ingredients) fieldIngredientsInput.value = listText(parsed.ingredients);
+            if (parsed.instructions) fieldInstructionsInput.value = listText(parsed.instructions);
+            if (parsed.notes) fieldNotesInput.value = listText(parsed.notes);
+        }
+        function splitLines(text) {
+            return String(text || "").split(/\r?\n/).map(l => l.replace(/^\s*(\d+\s*[.)]|[-•*])\s*/, "").trim()).filter(Boolean);
+        }
+
+        const modalDetail = document.getElementById("modalDetail");
+
+        function openDetail(id) {
+            const dish = dishes.find(d => d.id === id);
+            if (!dish) return;
+            detailDishId = id;
+            const g = (x) => document.getElementById(x);
+            g("detailCategory").textContent = `${CAT_EMOJI[dish.category]} ${i18n[lang]["cat_" + dish.category]}`;
+            g("detailTitle").textContent = dTitle(dish);
+            g("detailLevel").textContent = getDifficultyLabel(dish.difficulty);
+
+            const gallery = g("detailGallery");
+            gallery.innerHTML = "";
+            (dish.images || []).forEach(src => {
+                const img = document.createElement("img");
+                img.src = src;
+                img.className = "h-44 w-auto max-w-full object-cover rounded-2xl border border-slate-200 flex-shrink-0";
+                gallery.appendChild(img);
+            });
+            gallery.classList.toggle("hidden", !(dish.images && dish.images.length));
+
+            const ingredients = splitLines(dish.ingredients);
+            const ul = g("detailIngredients");
+            ul.innerHTML = "";
+            ingredients.forEach(text => {
+                const li = document.createElement("li");
+                li.className = "flex items-start gap-2.5 cursor-pointer";
+                const dot = document.createElement("span");
+                dot.className = "w-2 h-2 rounded-full bg-orange-400 mt-1.5 flex-shrink-0";
+                const label = document.createElement("span");
+                label.textContent = text;
+                li.append(dot, label);
+                li.onclick = () => { label.classList.toggle("line-through"); label.classList.toggle("opacity-40"); }; // tap to tick off
+                ul.appendChild(li);
+            });
+            g("detailIngredientsBox").classList.toggle("hidden", !ingredients.length);
+
+            const steps = splitLines(dish.instructions);
+            const ol = g("detailInstructions");
+            ol.innerHTML = "";
+            steps.forEach((text, i) => {
+                const li = document.createElement("li");
+                li.className = "flex items-start gap-3";
+                const num = document.createElement("span");
+                num.className = "w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5";
+                num.textContent = i + 1;
+                const label = document.createElement("span");
+                label.className = "leading-relaxed";
+                label.textContent = text;
+                li.append(num, label);
+                ol.appendChild(li);
+            });
+            g("detailInstructionsBox").classList.toggle("hidden", !steps.length);
+
+            const notes = dNotes(dish).trim();
+            g("detailNotes").textContent = notes;
+            g("detailNotesBox").classList.toggle("hidden", !notes);
+
+            const link = safeUrl(dish.link);
+            if (link) g("detailLink").href = link;
+            g("detailLink").classList.toggle("hidden", !link);
+            g("detailEmpty").classList.toggle("hidden", !!(ingredients.length || steps.length || notes));
+
+            modalDetail.classList.remove("hidden");
+            g("detailBody").scrollTop = 0;
+        }
+        function closeDetail() { modalDetail.classList.add("hidden"); detailDishId = null; }
+
+        dishesList.addEventListener("click", (e) => {
+            const el = e.target.closest("[data-open]");
+            if (el) openDetail(el.dataset.open);
+        });
+        document.getElementById("btnViewRecipe").addEventListener("click", () => { if (currentRolledDish) openDetail(currentRolledDish.id); });
+        document.getElementById("btnCloseDetail").addEventListener("click", closeDetail);
+        modalDetail.addEventListener("click", (e) => { if (e.target === modalDetail) closeDetail(); });
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modalDetail.classList.contains("hidden")) closeDetail(); });
+        document.getElementById("btnDetailEdit").addEventListener("click", () => { const id = detailDishId; closeDetail(); if (id) editDish(id); });
+
+        // --- SHARED GEMINI CALL: light thinking (fast), timeout, cancel, live timer ---
         let scanAbort = null;
 
         async function geminiGenerate(body, timeoutMs = 60000) {
@@ -1292,7 +1463,9 @@ Write every text value in ${lang === "he" ? "Hebrew" : "English"}. Output ONLY a
 {
   "title": "Dish name",
   "difficulty": integer from 1 (easy/fast) to 5 (complex/fancy),
-  "notes": "Short list of ingredients and key steps",
+  "ingredients": ["one ingredient per item, with its quantity"],
+  "instructions": ["one preparation step per item, in order"],
+  "notes": "Optional short tips; empty string if none",
   "category": "one of: protein (main dish of fish/beef/chicken/meat), extra (side like rice/couscous/quinoa/potatoes), soup, dessert"
 }`;
                 const data = await geminiGenerate({ contents: [{ parts: [{ text: prompt }] }], tools: [{ url_context: {} }] });
@@ -1308,7 +1481,7 @@ Write every text value in ${lang === "he" ? "Hebrew" : "English"}. Output ONLY a
 
                 if (parsed.title) fieldTitleInput.value = String(parsed.title).trim();
                 if (parsed.difficulty) fieldDifficultyInput.value = Math.min(5, Math.max(1, parseInt(parsed.difficulty) || 3));
-                if (parsed.notes) fieldNotesInput.value = Array.isArray(parsed.notes) ? parsed.notes.join("\n") : String(parsed.notes);
+                applyRecipeText(parsed);
                 if (CATEGORIES.includes(parsed.category)) fieldCategoryInput.value = parsed.category;
                 fieldLinkInput.value = url;
                 updateFormDifficultyBadge();
